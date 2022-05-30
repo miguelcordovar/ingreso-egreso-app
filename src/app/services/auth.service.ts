@@ -1,26 +1,44 @@
 import { Injectable } from '@angular/core';
 
+import { Store } from '@ngrx/store';
+
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 
-
 import { map } from 'rxjs/operators';
+import { AppState } from '../app.reducer';
 import { User } from '../models/user.model';
+import * as authActions from '../auth/auth.actions';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  userSubscription!:Subscription;
+
   constructor(public auth:AngularFireAuth,
+              public store:Store<AppState>,
               public firestore:AngularFirestore) { }
 
   initAuthServiceListener() {
     this.auth.authState.subscribe(fbUser => {
-      console.log(fbUser);
-      console.log(fbUser?.uid);
-      console.log(fbUser?.email);
-    })
+      if (fbUser) {
+          this.userSubscription = this.firestore.doc(`${fbUser?.uid}/user`)
+                                      .valueChanges()
+                                      .subscribe( (fsUser:any) => {
+                                        const { uid, username, email} = fsUser;
+                                        this.store.dispatch(authActions.setUser({user: new User(uid, username, email)}));
+                                      });
+      } else {
+          if (this.userSubscription)
+            this.userSubscription.unsubscribe();
+
+          this.store.dispatch(authActions.unsetUser());
+      }
+    });
+
   }
 
   async createUser(username:string, email:string, password:string) {
@@ -39,9 +57,10 @@ export class AuthService {
   }
 
   isAuth() {
-    return this.auth.authState.pipe(
-      map(fbUser => fbUser != null)
-    );
+    return this.auth.authState
+            .pipe(
+              map(fbUser => fbUser != null)
+            );
   }
 
 
