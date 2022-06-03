@@ -75,7 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           icon: 'error',
           title: 'Oops...',
           text: err.message
-        })
+        });
       });
 
   }
