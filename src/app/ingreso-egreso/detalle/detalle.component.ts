@@ -6,6 +6,7 @@ import { IngresoEgreso } from 'src/app/models/ingreso-egreso.model';
 import { IngresoEgresoService } from 'src/app/services/ingreso-egreso.service';
 
 import Swal from 'sweetalert2';
+import { AppStateWithIngresosEgresos } from '../ingreso-egreso.reducer';
 
 @Component({
   selector: 'app-detalle',
@@ -18,7 +19,7 @@ export class DetalleComponent implements OnInit, OnDestroy {
   ingresosEgresos:IngresoEgreso[] = [];
   ingresosEgresosSubscription!:Subscription;
 
-  constructor(private store:Store<AppState>,
+  constructor(private store:Store<AppStateWithIngresosEgresos>,
               private ingresoEgresoService:IngresoEgresoService) {
 
   }

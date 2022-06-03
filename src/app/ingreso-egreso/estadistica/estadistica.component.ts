@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ChartData, ChartType } from 'chart.js';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
+
 import { IngresoEgreso } from 'src/app/models/ingreso-egreso.model';
-import { AppState } from '../../app.reducer';
+import { AppStateWithIngresosEgresos } from '../ingreso-egreso.reducer';
 
 @Component({
   selector: 'app-estadistica',
@@ -11,7 +12,7 @@ import { AppState } from '../../app.reducer';
   styles: [
   ]
 })
-export class EstadisticaComponent implements OnInit {
+export class EstadisticaComponent implements OnInit, OnDestroy {
 
   ingresos: number = 0;
   egresos: number = 0;
@@ -21,20 +22,24 @@ export class EstadisticaComponent implements OnInit {
 
   ingresosEgresosSubscription!:Subscription
 
-    // Doughnut
-    public doughnutChartLabels: string[] = [ 'Ingresos', 'Egresos' ];
+  // Doughnut
+  public doughnutChartLabels: string[] = [ 'Ingresos', 'Egresos' ];
 
-    public doughnutChartData: ChartData<'doughnut'> = {
-      labels: this.doughnutChartLabels,
-      datasets: []
-    };
-    public doughnutChartType: ChartType = 'doughnut';
+  public doughnutChartData: ChartData<'doughnut'> = {
+    labels: this.doughnutChartLabels,
+    datasets: []
+  };
+  public doughnutChartType: ChartType = 'doughnut';
 
-  constructor(private store:Store<AppState>) { }
+  constructor(private store:Store<AppStateWithIngresosEgresos>) { }
 
   ngOnInit(): void {
     this.ingresosEgresosSubscription = this.store.select('ingresosEgresos')
       .subscribe(({items})=>this.calcularIngresosEgresos(items));
+  }
+
+  ngOnDestroy(): void {
+      this.ingresosEgresosSubscription.unsubscribe();
   }
 
   calcularIngresosEgresos(items:IngresoEgreso[]) {

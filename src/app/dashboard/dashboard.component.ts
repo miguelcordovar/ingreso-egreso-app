@@ -7,6 +7,7 @@ import { IngresoEgresoService } from '../services/ingreso-egreso.service';
 
 import * as ingresosEgresosActions from '../ingreso-egreso/ingreso-egreso.actions';
 import { IngresoEgreso } from '../models/ingreso-egreso.model';
+import { AppStateWithIngresosEgresos } from '../ingreso-egreso/ingreso-egreso.reducer';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +20,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   authSubscription!:Subscription;
   ingresosEgresosSubscription!:Subscription;
 
-  constructor(private store:Store<AppState>,
+  constructor(private store:Store<AppStateWithIngresosEgresos>,
               private ingresoEgreso:IngresoEgresoService) { }
 
   ngOnInit(): void {
@@ -37,11 +38,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
 
-    if (this.ingresosEgresosSubscription)
-      this.ingresosEgresosSubscription.unsubscribe();
-
-    if (this.authSubscription)
-      this.authSubscription.unsubscribe();
+      this.ingresosEgresosSubscription?.unsubscribe();
+      this.authSubscription?.unsubscribe();
 
   }
 
